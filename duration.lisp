@@ -9,7 +9,8 @@
 (defclass duration ()
   ((day :accessor day-of :initarg :day :initform 0 :type integer)
    (sec :accessor sec-of :initarg :sec :initform 0 :type integer)
-   (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999))))
+   (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999)))
+  (:documentation "A duration instance represents a period of time with no additional context (e.g., starting or ending time or location)."))
 
 (defmethod print-object ((object duration) stream)
   (print-unreadable-object (object stream :type 'duration)
@@ -33,6 +34,7 @@
                       (zero-is-nil (nsec-of remaining))))))))))
 
 (defun duration (&key (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
+  "Returns a new duration instance representing the sum of the `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
   (let ((total-nsecs (+ nsec
                         (* +nsecs-per-second+ sec)
                         (* +nsecs-per-minute+ minute)
@@ -97,23 +99,35 @@
 (%defcomparator duration<
   (eql (%duration-compare a b) '<))
 
+(setf (documentation #'duration< 'function) "Returns `T` if every duration is shorter than the preceding duration, else returns `NIL`.")
+
 (%defcomparator duration<=
   (not (null (member (%duration-compare a b) '(< =)))))
+
+(setf (documentation #'duration<= 'function) "Returns `T` if every duration is shorter than or equal to the preceding duration, else returns `NIL`.")
 
 (%defcomparator duration>
   (eql (%duration-compare a b) '>))
 
+(setf (documentation #'duration> 'function) "Returns `T` if every duration is longer than the preceding duration, else returns `NIL`.")
+
 (%defcomparator duration>=
   (not (null (member (%duration-compare a b) '(> =)))))
+
+(setf (documentation #'duration>= 'function) "Returns `T` if every duration is longer than or equal to the preceding duration, else returns `NIL`.")
 
 (%defcomparator duration=
   (eql (%duration-compare a b) '=))
 
+(setf (documentation #'duration= 'function) "Returns `T` if every duration is equally long, else returns `NIL`.")
+
 (%defcomparator duration/=
   (not (eql (%duration-compare a b) '=)))
 
+(setf (documentation #'duration/= 'function) "Returns `T` if every duration is not equally long, else returns `NIL`.")
+
 (defun duration-as (duration unit)
-  "Returns two values: the first is the number of whole UNITs within DURATION, and the second is a new duration representing the reamainder of the original duration after dividing it by UNIT."
+  "Returns two values: the first is the number of whole `UNIT`s within `DURATION`, and the second is a fresh duration representing the reamainder of the original duration after dividing it by `UNIT`."
   (declare (type duration duration))
   (macrolet ((divide-storing-remainder (dividend divisor place)
                `(multiple-value-bind (quotient remainder)
@@ -142,18 +156,21 @@
       (values whole-units (duration :sec (or remaining-secs 0) :nsec (or remaining-nsecs 0))))))
 
 (defun duration+ (&rest durations)
+  "Returns a fresh duration representing the sum of the lengths of its arguments."
   (let ((total-day (reduce #'+ durations :key #'day-of))
         (total-sec (reduce #'+ durations :key #'sec-of))
         (total-nsec (reduce #'+ durations :key #'nsec-of)))
     (duration :day total-day :sec total-sec :nsec total-nsec)))
 
 (defun duration- (&rest durations)
+  "Returns a fresh duration representing the result of subtracting the length of each argument in turn."
   (let ((total-day (reduce #'- durations :key #'day-of))
         (total-sec (reduce #'- durations :key #'sec-of))
         (total-nsec (reduce #'- durations :key #'nsec-of)))
     (duration :day total-day :sec total-sec :nsec total-nsec)))
 
 (defun duration* (duration factor)
+  "Returns a fresh duration as long as `DURATION` multiplied by `FACTOR`."
   (let ((curried-* (alexandria:rcurry #'* factor)))
     (let ((total-day (funcall curried-* (day-of duration)))
           (total-sec (funcall curried-* (sec-of duration)))
@@ -161,6 +178,7 @@
       (duration :day total-day :sec total-sec :nsec total-nsec))))
 
 (defun duration/ (duration divisor)
+  "Returns a fresh duration that is as long as `DURATION` divided by `DIVISOR`."
   (let ((curried-/ (alexandria:rcurry #'/ divisor)))
     (let ((total-day (funcall curried-/ (day-of duration)))
           (total-sec (funcall curried-/ (sec-of duration)))
