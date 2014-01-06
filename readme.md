@@ -31,7 +31,7 @@ LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
 
 `local-time-duration` also provides functions for working with `local-time` timestamps in conjunction with duration:
 
-```
+```lisp
 LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
 #<DURATION [0/10800/0] 3 hours>
 ```
