@@ -29,7 +29,7 @@ LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
 #<DURATION [0/1500/0] 25 minutes>
 ```
 
-`local-time-duration` also provides functions for working with `local-time` timestamps in conjunction with duration:
+`local-time-duration` also provides functions for working with `local-time` timestamps in conjunction with durations:
 
 ```
 LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
