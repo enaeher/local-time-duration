@@ -10,7 +10,7 @@ Durations describe a length of time&mdash;e.g., "4 days" or "5 hours and 29 minu
 
 ## Examples
 
-```lisp
+```
 LTD> (duration :day 1 :minute 75)
 #<DURATION [1/4500/0] 1 day 1 hour 15 minutes>
 
@@ -23,15 +23,15 @@ LTD> (duration+ (duration :hour 1) (duration :hour 23))
 
 A duration can be expressed in any arbitrary unit (the second value is the remainder of the duration that cannot be expressed in whole units):
 
-```lisp
-LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
+```
+(duration-as (duration :day 1 :hour 4 :minute 25) :hour) =>
 28
 #<DURATION [0/1500/0] 25 minutes>
 ```
 
 `local-time-duration` also provides functions for working with `local-time` timestamps in conjunction with duration:
 
-```lisp
-LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
+```
+(timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00) =>
 #<DURATION [0/10800/0] 3 hours>
 ```
