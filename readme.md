@@ -24,7 +24,7 @@ LTD> (duration+ (duration :hour 1) (duration :hour 23))
 A duration can be expressed in any arbitrary unit (the second value is the remainder of the duration that cannot be expressed in whole units):
 
 ```
-(duration-as (duration :day 1 :hour 4 :minute 25) :hour) =>
+LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
 28
 #<DURATION [0/1500/0] 25 minutes>
 ```
@@ -32,6 +32,6 @@ A duration can be expressed in any arbitrary unit (the second value is the remai
 `local-time-duration` also provides functions for working with `local-time` timestamps in conjunction with duration:
 
 ```
-(timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00) =>
+LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
 #<DURATION [0/10800/0] 3 hours>
 ```
