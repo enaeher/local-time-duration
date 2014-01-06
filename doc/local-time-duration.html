@@ -20,22 +20,22 @@
 
 <h2>Examples</h2>
 
-<pre><code><span class="code">LTD&gt; <span class="paren1">(<span class="code">duration <span class="keyword">:day</span> 1 <span class="keyword">:minute</span> 75</span>)</span>
-#&lt;DURATION [1/4500/0] 1 day 1 hour 15 minutes&gt;
+<pre><code>LTD> (duration :day 1 :minute 75)
+#<DURATION [1/4500/0] 1 day 1 hour 15 minutes>
 
-LTD&gt; <span class="paren1">(<span class="code">duration= <span class="paren2">(<span class="code">duration <span class="keyword">:day</span> 1</span>)</span> <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 24</span>)</span></span>)</span>
+LTD> (duration= (duration :day 1) (duration :hour 24))
 T
 
-LTD&gt; <span class="paren1">(<span class="code">duration+ <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 1</span>)</span> <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 23</span>)</span></span>)</span>
-#&lt;DURATION [1/0/0] 1 day&gt;</span></code></pre>
+LTD> (duration+ (duration :hour 1) (duration :hour 23))
+#<DURATION [1/0/0] 1 day></code></pre>
 
 <p>A duration can be expressed in any arbitrary unit (the second value is the remainder of the duration that cannot be expressed in whole units):</p>
 
-<pre><code><span class="code">LTD&gt; <span class="paren1">(<span class="code">duration-as <span class="paren2">(<span class="code">duration <span class="keyword">:day</span> 1 <span class="keyword">:hour</span> 4 <span class="keyword">:minute</span> 25</span>)</span> <span class="keyword">:hour</span></span>)</span>
+<pre><code>LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
 28
-#&lt;DURATION [0/1500/0] 25 minutes&gt;</span></code></pre>
+#<DURATION [0/1500/0] 25 minutes></code></pre>
 
-<p><code>local-time-duration</code> also provides functions for working with <code>local-time</code> timestamps in conjunction with duration:</p>
+<p><code>local-time-duration</code> also provides functions for working with <code>local-time</code> timestamps in conjunction with durations:</p>
 
 <pre><code>LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
 #<DURATION [0/10800/0] 3 hours></code></pre>
@@ -50,13 +50,13 @@ LTD&gt; <span class="paren1">(<span class="code">duration+ <span class="paren2">
 <section id='apiref-duration' class='section-apiref-item'>
   <div class='apiref-spec'>DURATION
   </div>
-  <div class='apiref-lambda'>(&amp;KEY (DAY 0) (HOUR 0) (MINUTE 0) (SEC 0) (NSEC 0))
+  <div class='apiref-lambda'>(&amp;KEY (WEEK 0) (DAY 0) (HOUR 0) (MINUTE 0) (SEC 0) (NSEC 0))
   </div>
   <div class='apiref-result'>
   </div>
   <div class='apiref-doc'>
 
-<p>Returns a new duration instance representing the sum of the <code>DAY</code>, <code>HOUR</code>, <code>MINUTE</code>, <code>SEC</code>, and <code>NSEC</code> arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation.</p>
+<p>Returns a new duration instance representing the sum of the <code>WEEK</code>, <code>DAY</code>, <code>HOUR</code>, <code>MINUTE</code>, <code>SEC</code>, and <code>NSEC</code> arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation.</p>
 
   </div>
 </section>

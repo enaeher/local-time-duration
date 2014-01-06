@@ -138,7 +138,7 @@
 (setf (documentation #'duration/= 'function) "Returns `T` if every duration is not equally long, else returns `NIL`.")
 
 (defun duration-as (duration unit)
-  "Returns two values: the first is the number of whole `UNIT`s within `DURATION`, and the second is a fresh duration representing the reamainder of the original duration after dividing it by `UNIT`."
+  "Returns two values: the first is the number of whole `UNIT`s within `DURATION`, and the second is a fresh duration representing the reamainder of the original duration after dividing it by `UNIT`. `UNIT` must be one of :week, :day, :hour, :minute, :sec, and :nsec."
   (declare (type duration duration))
   (macrolet ((divide-storing-remainder (dividend divisor place)
                `(multiple-value-bind (quotient remainder)
