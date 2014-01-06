@@ -1,0 +1,248 @@
+<!doctype html>
+
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+<title>GenDoc Documentation
+</title>
+<link rel='stylesheet' href='simple.css' />
+  </head>
+  <body>
+<article class='markdown-article' id='file-readme-md'>
+
+<h1>local-time-duration</h1>
+
+<p>This is a simple library that provides a <code>duration</code> class, and some useful accompanying operations. It is built on and requires the <a href="http://common-lisp.net/projects/local-time/" >local-time</a> library.</p>
+
+<h2>Assumptions and limitations</h2>
+
+<p>Durations describe a length of time&mdash;e.g., &quot;4 days&quot; or &quot;5 hours and 29 minutes&quot;&mdash;without reference to a particular start or end time. Unlike the <a href="https://github.com/enaeher/local-time-duration" >time-interval</a> library, <code>local-time-duration</code> makes no attempt to deal with variable-length units. In particular, durations may neither be specified nor represented in terms of years or months. Also, since durations do not represent a specific interval of time with a specific start or end time, there is no attempt when working exclusively with durations to handle leap seconds, timezone or daylight savings time changes, etc. However, when adding or removing a duration to or from a <code>local-time</code> timestamp, the <code>local-time</code> library will correctly handle timezone/DST.</p>
+
+<h2>Examples</h2>
+
+<pre><code><span class="code">LTD&gt; <span class="paren1">(<span class="code">duration <span class="keyword">:day</span> 1 <span class="keyword">:minute</span> 75</span>)</span>
+#&lt;DURATION [1/4500/0] 1 day 1 hour 15 minutes&gt;
+
+LTD&gt; <span class="paren1">(<span class="code">duration= <span class="paren2">(<span class="code">duration <span class="keyword">:day</span> 1</span>)</span> <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 24</span>)</span></span>)</span>
+T
+
+LTD&gt; <span class="paren1">(<span class="code">duration+ <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 1</span>)</span> <span class="paren2">(<span class="code">duration <span class="keyword">:hour</span> 23</span>)</span></span>)</span>
+#&lt;DURATION [1/0/0] 1 day&gt;</span></code></pre>
+
+<p>A duration can be expressed in any arbitrary unit (the second value is the remainder of the duration that cannot be expressed in whole units):</p>
+
+<pre><code><span class="code">LTD&gt; <span class="paren1">(<span class="code">duration-as <span class="paren2">(<span class="code">duration <span class="keyword">:day</span> 1 <span class="keyword">:hour</span> 4 <span class="keyword">:minute</span> 25</span>)</span> <span class="keyword">:hour</span></span>)</span>
+28
+#&lt;DURATION [0/1500/0] 25 minutes&gt;</span></code></pre>
+
+<p><code>local-time-duration</code> also provides functions for working with <code>local-time</code> timestamps in conjunction with duration:</p>
+
+<pre><code>LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
+#<DURATION [0/10800/0] 3 hours></code></pre>
+
+</article>
+<article id='reference-local-time-duration' class='apiref-article'>
+  <h1>Reference: LOCAL-TIME-DURATION
+  </h1>
+<section id='local-time-duration-functions' class='section-functions'>
+  <h2>Functions
+  </h2>
+<section id='apiref-duration' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION
+  </div>
+  <div class='apiref-lambda'>(&amp;KEY (DAY 0) (HOUR 0) (MINUTE 0) (SEC 0) (NSEC 0))
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a new duration instance representing the sum of the <code>DAY</code>, <code>HOUR</code>, <code>MINUTE</code>, <code>SEC</code>, and <code>NSEC</code> arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation.</p>
+
+  </div>
+</section>
+<section id='apiref-duration*' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION*
+  </div>
+  <div class='apiref-lambda'>(DURATION FACTOR)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh duration as long as <code>DURATION</code> multiplied by <code>FACTOR</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration+' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION+
+  </div>
+  <div class='apiref-lambda'>(&amp;REST DURATIONS)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh duration representing the sum of the lengths of its arguments.</p>
+
+  </div>
+</section>
+<section id='apiref-duration-' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION-
+  </div>
+  <div class='apiref-lambda'>(&amp;REST DURATIONS)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh duration representing the result of subtracting the length of each argument in turn.</p>
+
+  </div>
+</section>
+<section id='apiref-duration-as' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION-AS
+  </div>
+  <div class='apiref-lambda'>(DURATION UNIT)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns two values: the first is the number of whole <code>UNIT</code>s within <code>DURATION</code>, and the second is a fresh duration representing the reamainder of the original duration after dividing it by <code>UNIT</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration/' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION/
+  </div>
+  <div class='apiref-lambda'>(DURATION DIVISOR)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh duration that is as long as <code>DURATION</code> divided by <code>DIVISOR</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration/=' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION/=
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is not equally long, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration<' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION&lt;
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is shorter than the preceding duration, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration<=' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION&lt;=
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is shorter than or equal to the preceding duration, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration=' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION=
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is equally long, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration>' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION&gt;
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is longer than the preceding duration, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-duration>=' class='section-apiref-item'>
+  <div class='apiref-spec'>DURATION&gt;=
+  </div>
+  <div class='apiref-lambda'>(&amp;REST TIMES)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns <code>T</code> if every duration is longer than or equal to the preceding duration, else returns <code>NIL</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-timestamp-difference' class='section-apiref-item'>
+  <div class='apiref-spec'>TIMESTAMP-DIFFERENCE
+  </div>
+  <div class='apiref-lambda'>(TIME-A TIME-B)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a duration representing the time elapsed between the timestamps <code>TIME-A</code> and <code>TIME-B</code>. This duration may be negative if <code>TIME-B</code> is later than <code>TIME-A</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-timestamp-duration+' class='section-apiref-item'>
+  <div class='apiref-spec'>TIMESTAMP-DURATION+
+  </div>
+  <div class='apiref-lambda'>(TIMESTAMP DURATION)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh timestamp representing the time when <code>DURATION</code> has elapsed after <code>TIMESTAMP</code>.</p>
+
+  </div>
+</section>
+<section id='apiref-timestamp-duration-' class='section-apiref-item'>
+  <div class='apiref-spec'>TIMESTAMP-DURATION-
+  </div>
+  <div class='apiref-lambda'>(TIMESTAMP DURATION)
+  </div>
+  <div class='apiref-result'>
+  </div>
+  <div class='apiref-doc'>
+
+<p>Returns a fresh timestamp representing the time when <code>DURATION</code> will elapse before <code>TIMESTAMP</code>.</p>
+
+  </div>
+</section>
+</section>
+</article>
+  </body>
+</html>
