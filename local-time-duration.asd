@@ -6,4 +6,5 @@
     :serial t
     :components
     ((:file "package")
-     (:file "duration")))
+     (:file "duration")
+     (:file "timestamp")))

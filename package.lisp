@@ -16,4 +16,7 @@
    #:duration+
    #:duration-
    #:duration/
-   #:duration*))
+   #:duration*
+   #:timestamp-difference
+   #:timestamp-duration+
+   #:timestamp-duration-))
