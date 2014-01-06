@@ -1,10 +1,11 @@
 (in-package :ltd)
-
+1
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defconstant +nsecs-per-second+ 1000000000)
   (defconstant +nsecs-per-minute+ (* +nsecs-per-second+ local-time:+seconds-per-minute+))
   (defconstant +nsecs-per-hour+ (* +nsecs-per-second+ local-time:+seconds-per-hour+))
-  (defconstant +nsecs-per-day+ (* +nsecs-per-second+ local-time:+seconds-per-day+)))
+  (defconstant +nsecs-per-day+ (* +nsecs-per-second+ local-time:+seconds-per-day+))
+  (defconstant +nsecs-per-week+ (* +nsecs-per-day+ local-time:+days-per-week+)))
 
 (defclass duration ()
   ((day :accessor day-of :initarg :day :initform 0 :type integer)
@@ -12,10 +13,11 @@
    (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999)))
   (:documentation "A duration instance represents a period of time with no additional context (e.g., starting or ending time or location)."))
 
-(defmethod print-object ((object duration) stream)
-  (print-unreadable-object (object stream :type 'duration)
+(defun human-readable-duration (duration &optional (stream nil))
+  (multiple-value-bind (weeks remaining)
+      (duration-as duration :week)
     (multiple-value-bind (days remaining)
-        (duration-as object :day)
+        (duration-as remaining :day)
       (multiple-value-bind (hours remaining)
           (duration-as remaining :hour)
         (multiple-value-bind (minutes remaining)
@@ -23,23 +25,32 @@
           (multiple-value-bind (secs remaining)
               (duration-as remaining :sec)
             (flet ((zero-is-nil (x) (if (zerop x) nil x)))
-              (format stream "[~d/~d/~d]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
-                      (day-of object)
-                      (sec-of object)
-                      (nsec-of object)
-                      (zero-is-nil days)
-                      (zero-is-nil hours)
-                      (zero-is-nil minutes)
-                      (zero-is-nil secs)
-                      (zero-is-nil (nsec-of remaining))))))))))
+              (if (every #'zerop (list weeks days hours minutes secs))
+                  (print "empty duration" stream)
+                  (format stream "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
+                          (zero-is-nil weeks)
+                          (zero-is-nil days)
+                          (zero-is-nil hours)
+                          (zero-is-nil minutes)
+                          (zero-is-nil secs)
+                          (zero-is-nil (nsec-of remaining)))))))))))
 
-(defun duration (&key (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
-  "Returns a new duration instance representing the sum of the `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
+(defmethod print-object ((object duration) stream)
+  (print-unreadable-object (object stream :type 'duration)
+    (format stream "[~d/~d/~d] ~a"
+            (day-of object)
+            (sec-of object)
+            (nsec-of object)
+            (human-readable-duration object))))
+
+(defun duration (&key (week 0) (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
+  "Returns a new duration instance representing the sum of the `WEEK`, `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
   (let ((total-nsecs (+ nsec
                         (* +nsecs-per-second+ sec)
                         (* +nsecs-per-minute+ minute)
                         (* +nsecs-per-hour+ hour)
-                        (* +nsecs-per-day+ day))))
+                        (* +nsecs-per-day+ day)
+                        (* +nsecs-per-week+ week))))
     (multiple-value-bind (normalized-days remaining-nsecs)
         (floor total-nsecs +nsecs-per-day+)
       (multiple-value-bind (normalized-seconds remaining-nsecs)
@@ -134,10 +145,14 @@
                     (floor ,dividend ,divisor)
                   (setf ,place remainder)
                   quotient)))
-    (let* (remaining-secs
+    (let* (remaining-days
+           remaining-secs
            remaining-nsecs
            (whole-units
             (ecase unit
+              (:week (+ (divide-storing-remainder (day-of duration) local-time:+days-per-week+ remaining-days)
+                        (divide-storing-remainder (sec-of duration) local-time:+seconds-per-day+ remaining-secs)
+                        (divide-storing-remainder (nsec-of duration) +nsecs-per-day+ remaining-nsecs)))
               (:day (+ (day-of duration)
                        (divide-storing-remainder (sec-of duration) local-time:+seconds-per-day+ remaining-secs)
                        (divide-storing-remainder (nsec-of duration) +nsecs-per-day+ remaining-nsecs)))
@@ -153,7 +168,7 @@
               (:nsec (+ (* (day-of duration) +nsecs-per-day+)
                         (* (sec-of duration) +nsecs-per-second+)
                         (nsec-of duration))))))
-      (values whole-units (duration :sec (or remaining-secs 0) :nsec (or remaining-nsecs 0))))))
+      (values whole-units (duration :day (or remaining-days 0) :sec (or remaining-secs 0) :nsec (or remaining-nsecs 0))))))
 
 (defun duration+ (&rest durations)
   "Returns a fresh duration representing the sum of the lengths of its arguments."
