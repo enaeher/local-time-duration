@@ -6,5 +6,6 @@
     :serial t
     :components
     ((:file "package")
+     (:file "defcomparator")
      (:file "duration")
      (:file "timestamp")))

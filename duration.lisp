@@ -1,5 +1,5 @@
 (in-package :ltd)
-1
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defconstant +nsecs-per-second+ 1000000000)
   (defconstant +nsecs-per-minute+ (* +nsecs-per-second+ local-time:+seconds-per-minute+))
@@ -71,68 +71,32 @@
     ((> (nsec-of a) (nsec-of b)) '>)
     (t '=)))
 
-;;; FIXME -- this is just copied from local-time with the type checking changed from timestamp to duration
-(defmacro %defcomparator (name &body body)
-  (let ((pair-comparator-name (intern (concatenate 'string "%" (string name)))))
-    `(progn
-      (declaim (inline ,pair-comparator-name))
-      (defun ,pair-comparator-name (a b)
-        (assert (typep a 'duration)
-                nil
-                'type-error
-                :datum a
-                :expected-type 'duration)
-        (assert (typep b 'duration)
-                nil
-                'type-error
-                :datum b
-                :expected-type 'duration)
-        ,@body)
-      (defun ,name (&rest times)
-        (declare (dynamic-extent times))
-        (loop for head on times
-              while (cdr head)
-              always (,pair-comparator-name (first head) (second head))))
-      (define-compiler-macro ,name (&rest times)
-        (let ((vars (loop
-                      :for i :upfrom 0 :below (length times)
-                      :collect (gensym (concatenate 'string "TIME-" (princ-to-string i) "-")))))
-          `(let (,@(loop
-                     :for var :in vars
-                     :for time :in times
-                     :collect (list var time)))
-            ;; we could evaluate comparisons of timestamp literals here
-            (and ,@(loop
-                     :for (a b) :on vars
-                     :while b
-                     :collect `(,',pair-comparator-name ,a ,b)))))))))
-
-(%defcomparator duration<
+(%defcomparator duration< ('duration)
   (eql (%duration-compare a b) '<))
 
 (setf (documentation #'duration< 'function) "Returns `T` if every duration is shorter than the preceding duration, else returns `NIL`.")
 
-(%defcomparator duration<=
+(%defcomparator duration<= ('duration)
   (not (null (member (%duration-compare a b) '(< =)))))
 
 (setf (documentation #'duration<= 'function) "Returns `T` if every duration is shorter than or equal to the preceding duration, else returns `NIL`.")
 
-(%defcomparator duration>
+(%defcomparator duration> ('duration)
   (eql (%duration-compare a b) '>))
 
 (setf (documentation #'duration> 'function) "Returns `T` if every duration is longer than the preceding duration, else returns `NIL`.")
 
-(%defcomparator duration>=
+(%defcomparator duration>= ('duration)
   (not (null (member (%duration-compare a b) '(> =)))))
 
 (setf (documentation #'duration>= 'function) "Returns `T` if every duration is longer than or equal to the preceding duration, else returns `NIL`.")
 
-(%defcomparator duration=
+(%defcomparator duration= ('duration)
   (eql (%duration-compare a b) '=))
 
 (setf (documentation #'duration= 'function) "Returns `T` if every duration is equally long, else returns `NIL`.")
 
-(%defcomparator duration/=
+(%defcomparator duration/= ('duration)
   (not (eql (%duration-compare a b) '=)))
 
 (setf (documentation #'duration/= 'function) "Returns `T` if every duration is not equally long, else returns `NIL`.")
