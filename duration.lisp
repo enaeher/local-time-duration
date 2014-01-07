@@ -163,3 +163,9 @@
           (total-sec (funcall curried-/ (sec-of duration)))
           (total-nsec (funcall curried-/ (nsec-of duration))))
       (duration :day total-day :sec total-sec :nsec total-nsec))))
+
+(defun duration-minimum (duration &rest durations)
+  (local-time::contest #'duration< (cons duration durations)))
+
+(defun duration-maximum (duration &rest durations)
+  (local-time::contest #'duration> (cons duration durations)))

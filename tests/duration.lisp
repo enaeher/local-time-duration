@@ -31,3 +31,9 @@
   (5am:is (duration= (duration/ (duration :day 2)
                                 2)
                      (duration :day 1))))
+
+(5am:test duration-minimum
+  (5am:is (duration= (duration-minimum (duration :day 2)
+                                       (duration :hour 36)
+                                       (duration :day 4))
+                     (duration :hour 36))))

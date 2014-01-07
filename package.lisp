@@ -17,6 +17,9 @@
    #:duration-
    #:duration/
    #:duration*
+   #:duration-minimum
+   #:duration-maximum
+   #:human-readable-duration
    #:timestamp-difference
    #:timestamp-duration+
    #:timestamp-duration-))
