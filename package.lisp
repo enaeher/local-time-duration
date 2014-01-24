@@ -2,7 +2,7 @@
 
 (defpackage :local-time-duration
   (:use :common-lisp
-        :cl-user)
+        :esrap)
   (:nicknames :ltd)
   (:export
    #:duration

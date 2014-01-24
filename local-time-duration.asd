@@ -6,7 +6,7 @@
     :version "1.0"
     :author "WebCheckout, Inc."
     :license "MIT"
-    :depends-on (:local-time :alexandria)
+    :depends-on (:local-time :alexandria :esrap)
     :serial t
     :components
     ((:file "package")
