@@ -6,10 +6,11 @@
     :version "1.0"
     :author "WebCheckout, Inc."
     :license "MIT"
-    :depends-on (:local-time :alexandria)
+    :depends-on (:local-time :alexandria :esrap)
     :serial t
     :components
     ((:file "package")
      (:file "defcomparator")
      (:file "duration")
-     (:file "timestamp")))
+     (:file "timestamp")
+     (:file "iso8601")))

@@ -2,7 +2,7 @@
 
 (defpackage :local-time-duration
   (:use :common-lisp
-        :cl-user)
+        :esrap)
   (:nicknames :ltd)
   (:export
    #:duration
@@ -22,4 +22,6 @@
    #:human-readable-duration
    #:timestamp-difference
    #:timestamp-duration+
-   #:timestamp-duration-))
+   #:timestamp-duration-
+
+   #:parse-iso8601-duration))
