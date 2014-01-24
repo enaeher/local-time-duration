@@ -13,7 +13,7 @@
    (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999)))
   (:documentation "A duration instance represents a period of time with no additional context (e.g., starting or ending time or location)."))
 
-(defun human-readable-duration (duration &optional (stream nil))
+(defun human-readable-duration (duration stream)
   (multiple-value-bind (weeks remaining)
       (duration-as duration :week)
     (multiple-value-bind (days remaining)
@@ -24,24 +24,25 @@
             (duration-as remaining :minute)
           (multiple-value-bind (secs remaining)
               (duration-as remaining :sec)
-            (flet ((zero-is-nil (x) (if (zerop x) nil x)))
-              (if (every #'zerop (list weeks days hours minutes secs))
-                  (print "empty duration" stream)
-                  (format stream "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
-                          (zero-is-nil weeks)
-                          (zero-is-nil days)
-                          (zero-is-nil hours)
-                          (zero-is-nil minutes)
-                          (zero-is-nil secs)
-                          (zero-is-nil (nsec-of remaining)))))))))))
+            (let ((nsecs (duration-as remaining :nsec)))
+              (flet ((zero-is-nil (x) (if (zerop x) nil x)))
+                (if (every #'zerop (list weeks days hours minutes secs nsecs))
+                    (format stream "0 length")
+                    (format stream "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
+                            (zero-is-nil weeks)
+                            (zero-is-nil days)
+                            (zero-is-nil hours)
+                            (zero-is-nil minutes)
+                            (zero-is-nil secs)
+                            (zero-is-nil (nsec-of remaining))))))))))))
 
 (defmethod print-object ((object duration) stream)
   (print-unreadable-object (object stream :type 'duration)
-    (format stream "[~d/~d/~d] ~a"
+    (format stream "[~d/~d/~d] "
             (day-of object)
             (sec-of object)
-            (nsec-of object)
-            (human-readable-duration object))))
+            (nsec-of object))
+    (human-readable-duration object stream)))
 
 (defun duration (&key (week 0) (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
   "Returns a new duration instance representing the sum of the `WEEK`, `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
