@@ -22,4 +22,6 @@
    #:human-readable-duration
    #:timestamp-difference
    #:timestamp-duration+
-   #:timestamp-duration-))
+   #:timestamp-duration-
+
+   #:parse-iso8601-duration))
