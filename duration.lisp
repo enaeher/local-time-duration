@@ -27,7 +27,7 @@
             (let ((nsecs (duration-as remaining :nsec)))
               (flet ((zero-is-nil (x) (if (zerop x) nil x)))
                 (if (every #'zerop (list weeks days hours minutes secs nsecs))
-                    (format stream "empty duration")
+                    (format stream "0 length")
                     (format stream "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
                             (zero-is-nil weeks)
                             (zero-is-nil days)
