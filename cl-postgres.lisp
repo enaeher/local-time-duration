@@ -16,9 +16,15 @@
     (multiple-value-bind (seconds seconds-remainder)
         (duration-as day-remainder :sec)
       (let ((nsecs (duration-as seconds-remainder :nsec)))
-        (values (format nil "'~D days ~F seconds'::interval"
-                        days
-                        (float (+ seconds (/ nsecs +nsecs-per-second+))))
-                day-remainder
-                seconds-remainder
-                nsecs)))))
+        (with-output-to-string (interval)
+          (write-char #\' interval)
+          (when (plusp days)
+            (format interval "~D days" days)
+            (when (or (plusp nsecs) (plusp seconds))
+              (write-char #\Space interval)))
+          (cond
+            ((plusp nsecs)
+             (format interval "~F seconds" (float (+ seconds (/ nsecs +nsecs-per-second+))) ))
+            ((plusp seconds)
+             (format interval "~D seconds" seconds)))
+          (write-string "'::interval" interval))))))
