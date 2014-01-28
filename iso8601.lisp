@@ -154,3 +154,11 @@ The only, known, divergence from the syntax specified is that
 fractional values are allowed anywhere and not only in the smallest
 value."
   (esrap:parse 'iso8601-duration string))
+
+(defun format-iso8601-duration (destination duration)
+  (with-designated-stream (stream destination)
+    (multiple-value-bind (nsecs secs minutes hours days weeks months years)
+        (decode-duration duration :weeks nil)
+      (declare (ignore weeks months years))
+      (write-string "P0Y0M" stream)
+      (format stream "~DDT~DH~DM~AS" days hours minutes (pretty-seconds secs nsecs)))))

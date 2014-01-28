@@ -12,5 +12,6 @@
     ((:file "package")
      (:file "defcomparator")
      (:file "duration")
+     (:file "format")
      (:file "timestamp")
      (:file "iso8601")))

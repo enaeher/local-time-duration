@@ -11,14 +11,4 @@
                                     table))
 
 (defmethod cl-postgres:to-sql-string ((duration duration))
-  (multiple-value-bind (days day-remainder)
-      (duration-as duration :day)
-    (multiple-value-bind (seconds seconds-remainder)
-        (duration-as day-remainder :sec)
-      (let ((nsecs (duration-as seconds-remainder :nsec)))
-        (values (format nil "'~D days ~F seconds'::interval"
-                        days
-                        (float (+ seconds (/ nsecs +nsecs-per-second+))))
-                day-remainder
-                seconds-remainder
-                nsecs)))))
+  (format nil "'~A'::interval" (format-iso8601-duration nil duration)))
