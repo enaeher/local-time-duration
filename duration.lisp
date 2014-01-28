@@ -13,38 +13,6 @@
    (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999)))
   (:documentation "A duration instance represents a period of time with no additional context (e.g., starting or ending time or location)."))
 
-(defun human-readable-duration (duration &optional stream)
-  (multiple-value-bind (weeks remaining)
-      (duration-as duration :week)
-    (multiple-value-bind (days remaining)
-        (duration-as remaining :day)
-      (multiple-value-bind (hours remaining)
-          (duration-as remaining :hour)
-        (multiple-value-bind (minutes remaining)
-            (duration-as remaining :minute)
-          (multiple-value-bind (secs remaining)
-              (duration-as remaining :sec)
-            (let ((nsecs (duration-as remaining :nsec)))
-              (flet ((zero-is-nil (x) (if (zerop x) nil x)))
-                (let ((output (with-output-to-string (human-readable)
-                                (if (every #'zerop (list weeks days hours minutes secs nsecs))
-                                    (format human-readable "0 length")
-                                    (format human-readable "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
-                                            (zero-is-nil weeks)
-                                            (zero-is-nil days)
-                                            (zero-is-nil hours)
-                                            (zero-is-nil minutes)
-                                            (zero-is-nil secs)
-                                            (zero-is-nil (nsec-of remaining)))))))
-                  (setf output (string-left-trim '(#\Space) output))
-                  (cond ((eql stream t)
-                         (write-string output *standard-output*))
-                        ((eql stream nil)
-                         output)
-                        ((streamp stream)
-                         (write-string output stream))
-                        (t (error "Invalid value for stream ~S." stream))))))))))))
-
 (defmethod print-object ((object duration) stream)
   (print-unreadable-object (object stream :type 'duration)
     (format stream "[~d/~d/~d] ~A"
@@ -52,6 +20,29 @@
             (sec-of object)
             (nsec-of object)
             (human-readable-duration object))))
+
+(defun human-readable-duration (duration &optional stream)
+  (multiple-value-bind (nsecs secs minutes hours days weeks)
+      (decode-duration duration :weeks t)
+    (flet ((zero-is-nil (x) (if (zerop x) nil x)))
+      (let ((output (with-output-to-string (human-readable)
+                      (if (every #'zerop (list weeks days hours minutes secs nsecs))
+                          (format human-readable "0 length")
+                          (format human-readable "~@[~d week~:p~]~@[ ~d day~:p~]~@[ ~d hour~:p~]~@[ ~d minute~:p~]~@[ ~d second~:p~]~@[ ~d nsec~:p~]"
+                                  (zero-is-nil weeks)
+                                  (zero-is-nil days)
+                                  (zero-is-nil hours)
+                                  (zero-is-nil minutes)
+                                  (zero-is-nil secs)
+                                  (zero-is-nil nsecs))))))
+        (setf output (string-left-trim '(#\Space) output))
+        (cond ((eql stream t)
+               (write-string output *standard-output*))
+              ((eql stream nil)
+               output)
+              ((streamp stream)
+               (write-string output stream))
+              (t (error "Invalid value for stream ~S." stream)))))))
 
 (defun duration (&key (week 0) (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
   "Returns a new duration instance representing the sum of the `WEEK`, `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
@@ -69,6 +60,40 @@
                        :day normalized-days
                        :sec normalized-seconds
                        :nsec remaining-nsecs)))))
+
+(defun decode-duration (duration &key (weeks nil))
+  "Returns, as multiple values, DURATION's logical components:
+
+ (nsecs secs minutes hours days weeks months years)
+
+If WEEKS is T days the days component of DURATION will first be used
+to compute an integral number of weeks, and the remainder days will be
+returned. If WEEKS is NIL (the default) the weeks value will always be
+0 and the whole number of days will be returned as DAYS.
+
+In the current implementation MONTHS and YEARS are always 0."
+  (multiple-value-bind (weeks remaining)
+      (if weeks
+          (duration-as duration :week)
+          (values 0 duration))
+    (multiple-value-bind (days remaining)
+        (duration-as remaining :day)
+      (multiple-value-bind (hours remaining)
+          (duration-as remaining :hour)
+        (multiple-value-bind (minutes remaining)
+            (duration-as remaining :minute)
+          (multiple-value-bind (secs remaining)
+              (duration-as remaining :sec)
+            (let ((nsecs (duration-as remaining :nsec)))
+              (values nsecs
+                      secs
+                      minutes
+                      hours
+                      days
+                      weeks
+                      0                 ; months
+                      0                 ; years
+                      ))))))))
 
 (defun %duration-compare (a b)
   (declare (type duration a b))
