@@ -11,4 +11,4 @@
                                     table))
 
 (defmethod cl-postgres:to-sql-string ((duration duration))
-  (format-iso8601-duration nil duration))
+  (format nil "'~A'::interval" (format-iso8601-duration nil duration)))
