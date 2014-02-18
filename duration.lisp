@@ -10,25 +10,29 @@
 (defclass duration ()
   ((day :accessor day-of :initarg :day :initform 0 :type integer)
    (sec :accessor sec-of :initarg :sec :initform 0 :type integer)
-   (nsec :accessor nsec-of :initarg :nsec :initform 0 :type (integer 0 999999999)))
+   (nsec :accessor nsec-of :initarg :nsec :initform 0 :type integer))
   (:documentation "A duration instance represents a period of time with no additional context (e.g., starting or ending time or location)."))
 
 (defun duration (&key (week 0) (day 0) (hour 0) (minute 0) (sec 0) (nsec 0))
   "Returns a new duration instance representing the sum of the `WEEK`, `DAY`, `HOUR`, `MINUTE`, `SEC`, and `NSEC` arguments. Durations are normalized, that is, (duration :hour 1) and (duration :minute 60) will result in duration instances with the same internal representation."
-  (let ((total-nsecs (+ nsec
-                        (* +nsecs-per-second+ sec)
-                        (* +nsecs-per-minute+ minute)
-                        (* +nsecs-per-hour+ hour)
-                        (* +nsecs-per-day+ day)
-                        (* +nsecs-per-week+ week))))
+  (let* ((total-nsecs (+ nsec
+                         (* +nsecs-per-second+ sec)
+                         (* +nsecs-per-minute+ minute)
+                         (* +nsecs-per-hour+ hour)
+                         (* +nsecs-per-day+ day)
+                         (* +nsecs-per-week+ week)))
+         (sign (if (plusp total-nsecs)
+                   1
+                   -1))
+         (total-nsecs (abs total-nsecs)))
     (multiple-value-bind (normalized-days remaining-nsecs)
         (floor total-nsecs +nsecs-per-day+)
       (multiple-value-bind (normalized-seconds remaining-nsecs)
           (floor remaining-nsecs +nsecs-per-second+)
         (make-instance 'duration
-                       :day normalized-days
-                       :sec normalized-seconds
-                       :nsec remaining-nsecs)))))
+                       :day (* sign normalized-days)
+                       :sec (* sign normalized-seconds)
+                       :nsec (* sign remaining-nsecs))))))
 
 (defun decode-duration (duration &key (weeks nil))
   "Returns, as multiple values, DURATION's logical components:
@@ -110,7 +114,7 @@ In the current implementation MONTHS and YEARS are always 0."
   (declare (type duration duration))
   (macrolet ((divide-storing-remainder (dividend divisor place)
                `(multiple-value-bind (quotient remainder)
-                    (floor ,dividend ,divisor)
+                    (truncate ,dividend ,divisor)
                   (setf ,place remainder)
                   quotient)))
     (let* (remaining-days
