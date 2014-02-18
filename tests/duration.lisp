@@ -37,3 +37,24 @@
                                        (duration :hour 36)
                                        (duration :day 4))
                      (duration :hour 36))))
+
+(defun gen-timestamp ()
+  (lambda ()
+    (flet ((rand-in-range (range-size)
+             (- (random range-size) (/ range-size 2))))
+      (local-time:adjust-timestamp (local-time:now)
+        (:offset :year (rand-in-range 40))
+        (:offset :month (rand-in-range 24))
+        (:offset :day (rand-in-range 180))
+        (:offset :minute (rand-in-range 600))
+        (:offset :sec (rand-in-range 3600))
+        (:offset :nsec (rand-in-range (expt 10 9)))))))
+
+(5am:test duration-associates
+  "Test that, for any pair of timestamps, this always holds:
+
+  (+ b (difference a b)) == a"
+  (let ((lt:*default-timezone* lt:+utc-zone+))
+    (5am:for-all ((a (gen-timestamp))
+                  (b (gen-timestamp)))
+      (5am:is (lt:timestamp= a (ltd:timestamp-duration+ b (ltd:timestamp-difference a b)))))))
