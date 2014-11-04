@@ -8,6 +8,8 @@
                 (local-time:sec-of time-b)))
         (nsec (- (local-time:nsec-of time-a)
                  (local-time:nsec-of time-b))))
+    (incf sec (- (lt::timestamp-subtimezone time-a timezone)
+		 (lt::timestamp-subtimezone time-b timezone)))
     (duration :day day :sec sec :nsec nsec)))
 
 (defun timestamp-duration+ (timestamp duration)
