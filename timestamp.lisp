@@ -1,6 +1,6 @@
 (in-package :ltd)
 
-(defun timestamp-difference (time-a time-b)
+(defun timestamp-difference (time-a time-b &key (timezone lt::*default-timezone*))
   "Returns a duration representing the time elapsed between the timestamps `TIME-A` and `TIME-B`. This duration may be negative if `TIME-B` is later than `TIME-A`."
   (let ((day (- (local-time:day-of time-a)
                 (local-time:day-of time-b)))
