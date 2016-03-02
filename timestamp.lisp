@@ -2,16 +2,11 @@
 
 (defun timestamp-difference (time-a time-b &key (timezone lt::*default-timezone*))
   "Returns a duration representing the time elapsed between the timestamps `TIME-A` and `TIME-B`. This duration may be negative if `TIME-B` is later than `TIME-A`."
-  (let ((day (- (local-time:day-of time-a)
-                (local-time:day-of time-b)))
-        (sec (- (local-time:sec-of time-a)
-                (local-time:sec-of time-b)))
-        (nsec (- (local-time:nsec-of time-a)
-                 (local-time:nsec-of time-b))))
+  (let ((seconds (- (lt:timestamp-to-universal time-a) (lt:timestamp-to-universal time-b))))
     (when lt:*use-political-time*
-      (incf sec (- (lt::timestamp-subtimezone time-a timezone)
-		   (lt::timestamp-subtimezone time-b timezone))))
-    (duration :day day :sec sec :nsec nsec)))
+      (incf seconds (- (lt::timestamp-subtimezone time-a timezone)
+		   (lt::timestamp-subtimezone time-b timezone))))    
+    (duration :sec seconds)))
 
 (defun timestamp-duration+ (timestamp duration)
   "Returns a fresh timestamp representing the time when `DURATION` has elapsed after `TIMESTAMP`."
