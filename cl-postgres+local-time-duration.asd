@@ -1,3 +1,7 @@
 (defsystem :cl-postgres+local-time-duration
-  :depends-on (:cl-postgres :local-time-duration)
-  :components ((:file "cl-postgres")))
+    :description "cl-postgres integration for local-time-duration"
+    :version "1.0"
+    :author "WebCheckout, Inc."
+    :license "MIT"
+    :depends-on (:cl-postgres :local-time-duration)
+    :components ((:file "cl-postgres")))
