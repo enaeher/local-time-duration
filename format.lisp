@@ -51,3 +51,16 @@ ignored."
             (sec-of object)
             (nsec-of object)
             (human-readable-duration object))))
+
+(defun to-hhmmss (duration &optional stream)
+  (multiple-value-bind (nsecs secs minutes hours days weeks) (decode-duration duration :weeks t)
+    (with-designated-stream (stream stream)
+      (let ((isecs (round secs)))
+        (cond ((or (> weeks 0))
+               (format stream "~d weeks, ~d days, ~2,'0d:~2,'0d:~2,'0d" weeks days hours minutes isecs))
+              ((or (> days 1))
+               (format stream "~d days, ~2,'0d:~2,'0d:~2,'0d" days hours minutes isecs))
+              (t (format stream "~2,'0d:~2,'0d:~2,'0d"
+                         (+ (* days 24) hours)
+                         minutes
+                         isecs)))))))
