@@ -20,6 +20,7 @@
    #:duration-minimum
    #:duration-maximum
    #:human-readable-duration
+   #:to-hhmmss
    #:timestamp-difference
    #:timestamp-duration+
    #:timestamp-duration-
