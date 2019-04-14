@@ -54,7 +54,7 @@
   "Test that, for any pair of timestamps, this always holds:
 
   (+ b (difference a b)) == a"
-  (let ((lt:*default-timezone* lt:+utc-zone+))
+  (let ((local-time:*default-timezone* local-time:+utc-zone+))
     (5am:for-all ((a (gen-timestamp))
                   (b (gen-timestamp)))
-      (5am:is (lt:timestamp= a (ltd:timestamp-duration+ b (ltd:timestamp-difference a b)))))))
+      (5am:is (local-time:timestamp= a (ltd:timestamp-duration+ b (ltd:timestamp-difference a b)))))))

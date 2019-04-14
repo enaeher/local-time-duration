@@ -45,15 +45,28 @@ ignored."
                     (zero-is-nil nsecs)))))))
 
 (defmethod print-object ((object duration) stream)
-  (print-unreadable-object (object stream :type 'duration)
-    (format stream "[~d/~d/~d] ~A"
-            (day-of object)
-            (sec-of object)
-            (nsec-of object)
-            (human-readable-duration object))))
+  (if *print-readably*
+      ;; According to DECODE-DURATION, the YEAR, MONTHS and WEEKS
+      ;; components are always zero.
+      (multiple-value-bind (nsecs secs minutes hours days)
+          (decode-duration object)
+        (flet ((field (key value) (if (zerop value) () (list key value))))
+          (format stream "#.~S"
+                  `(duration ,@(field :day days)
+                             ,@(field :hour hours)
+                             ,@(field :minute minutes)
+                             ,@(field :sec secs)
+                             ,@(field :nsec nsecs)))))
+      (print-unreadable-object (object stream :type 'duration)
+        (format stream "[~d/~d/~d] ~A"
+                (day-of object)
+                (sec-of object)
+                (nsec-of object)
+                (human-readable-duration object)))))
 
 (defun to-hhmmss (duration &optional stream)
   (multiple-value-bind (nsecs secs minutes hours days weeks) (decode-duration duration :weeks t)
+    (declare (ignorable nsecs))
     (with-designated-stream (stream stream)
       (let ((isecs (round secs)))
         (cond ((or (> weeks 0))
@@ -64,3 +77,4 @@ ignored."
                          (+ (* days 24) hours)
                          minutes
                          isecs)))))))
+
