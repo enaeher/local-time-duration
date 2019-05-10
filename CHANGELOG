@@ -1,3 +1,11 @@
+1.2 (2019-05-10)
+
+	Function human-readable-duration now outputs only two significant parts by default.
+	But this can be configurable by second optional argument.
+
+	Also, third optional argument was added to add ability to translate representation into
+	other languages. See README for example.
+
 1.1 (2018-04-24)
 
 	Added support for printing readable representations of durations.

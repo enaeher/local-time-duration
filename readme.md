@@ -35,3 +35,44 @@ LTD> (duration-as (duration :day 1 :hour 4 :minute 25) :hour)
 LTD> (timestamp-difference @2014-01-01T09:00:00 @2014-01-01T06:00:00)
 #<DURATION [0/10800/0] 3 hours>
 ```
+
+### Printing
+
+Durations can be represented as human readable strings using `human-readable-duration` function:
+
+```
+LTD> (human-readable-duration (duration :week 42 :day 0 :hour 2 :minute 3 :sec 15 :nsec 214354))
+"42 weeks 2 hours"
+```
+
+First optional argument is a stream. Using second optional argument, you can set a number of parts to output:
+
+```
+LTD> (human-readable-duration (duration :week 42 :day 0 :hour 2 :minute 3 :sec 15 :nsec 214354)
+                              nil
+                              4)
+"42 weeks 2 hours 3 minutes 15 seconds"
+```
+
+Using third optional argument, you can add support for another language
+with proper pluralization:
+
+```
+LTD> (defun russian-format-part (stream part-type value)
+       (format stream
+               "~A ~A"
+               value
+               (ecase part-type
+                 (:weeks (cl-inflector:pluralize value "неделя" "недель"))
+                 (:days (cl-inflector:pluralize value "день" "дней"))
+                 (:hours (cl-inflector:pluralize value "час" "часов"))
+                 (:minutes (cl-inflector:pluralize value "минута" "минут"))
+                 (:secs (cl-inflector:pluralize value "секунда" "секунд"))
+                 (:nsecs (cl-inflector:pluralize value "наносекунда" "наносекунд")))))
+RUSSIAN-FORMAT-PART
+LTD> (human-readable-duration (duration :week 42 :day 0 :hour 2 :minute 3 :sec 15 :nsec 214354)
+                              nil
+                              4
+                              'russian-format-part)
+"42 недель 2 часов 3 минут 15 секунд"
+```
