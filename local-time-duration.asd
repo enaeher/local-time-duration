@@ -3,7 +3,7 @@
 
 (defsystem :local-time-duration
     :description "local-time-duration: Simple duration functionality on top of local-time"
-    :version "1.1"
+    :version "1.2"
     :author "WebCheckout, Inc."
     :license "MIT"
     :depends-on (:local-time :alexandria :esrap)
